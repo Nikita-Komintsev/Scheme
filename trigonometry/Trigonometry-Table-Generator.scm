@@ -4,10 +4,6 @@
   (let ((factor (expt 10 digits)))
     (/ (round (* n factor)) factor)))
 
-(define (PrintLine)
-  (display "+----------+------------+------------+------------+")
-  (newline))
-
 (define (PrintRow deg precision)
   (display "| ")
   (display (round-to deg 2))
@@ -20,26 +16,25 @@
     (display (round-to cos-value precision))
     (display " | ")
     (if (= (round-to cos-value precision) 0)
-        (display "    inf   ")
+        (display " inf ")
         (display (round-to tan-value precision)))
     (display " |"))
   (newline))
 
 (define (TrigTable start end step precision)
-  (define (PrintHeader)
-    (PrintLine)
-    (display "| Degrees | sin(x) | cos(x) | tan(x) |")
-    (newline)
-    (PrintLine))
-
-  (PrintHeader)
+  (display "-------------------------------------")
+  (newline)
+  (display "| Degrees | sin(x) | cos(x) | tan(x) |")
+  (newline)
+  (display "-------------------------------------")
+  (newline)
 
   (let loop ((deg start))
     (when (<= deg end)
       (PrintRow deg precision)
       (loop (+ deg step))))
 
-  (PrintLine))
+  (display "-------------------------------------"))
 
-;; Пример вызова функции для вывода таблицы с шагом 5 градусов от 0 до 90 с точностью до 4 знаков после запятой
+;; от 0 до 90  с шагом 5  с точностью до 4 знаков после запятой
 (TrigTable 0 90 5 4)
