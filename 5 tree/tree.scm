@@ -65,8 +65,34 @@
 ;Если дерево пусто, возвращает 'end'.
 ;Итератор вызывается с использованием call/cc для установки продолжения и вызова traverse.
 
-(define (compare-tree t1 t2)
-	(let ((caller #f) (iter1 (make-tree-iterator t1)) (iter2 (make-tree-iterator t2)))  ;Создаем итераторы для обоих деревьев iter1 и iter2.
+(define (make-list-iterator lst)
+ (let ((caller #f))
+	  (letrec ((traverse
+			(lambda ()
+			 (let loop ((lst lst))
+				(if (not (null? lst))
+				 (begin
+					(call/cc (lambda (rest-of-list)
+							(set! traverse (lambda () (rest-of-list 'dummy))) ; продолжить обход
+							(caller (car lst))
+						 )
+					)
+					(loop (cdr lst))
+				 )
+				)
+			 )
+			 (caller 'end)
+			)
+		))
+	 (lambda ()
+		(call/cc (lambda (k) (set! caller k) (traverse)))
+	 ) ;; iterator proc end
+	)
+ )
+)
+
+(define (compare-tree-to-list t1 t2)
+	(let ((caller #f) (iter1 (make-tree-iterator t1)) (iter2 (make-list-iterator t2)))  ;Создаем итераторы для обоих деревьев iter1 и iter2.
 		(letrec ((loop (lambda (v1 v2)
 			(cond																		; cond сравнивает значения узлов:
 				((eq? v1 'end) (caller (eq? v2 'end)))									;Если оба значения 'end', деревья равны.
@@ -84,4 +110,15 @@
 	)
 )
 
-(display (compare-tree Tree Tree2))(newline)
+
+(define List '(4 2 5 1 6 3 7))
+(display List)(newline)
+
+(let ((iter (make-tree-iterator Tree)))
+    (let loop ((val (iter)))
+      (if (not (eq? val 'end))
+          (begin
+            (display val)(newline)
+            (loop (iter))))))
+
+(display (compare-tree-to-list Tree List))(newline)
